@@ -28,6 +28,7 @@ public class CombatSystem {
             caveman.takeDamage(dino.damage);
             dino.attackCooldown = 30;
             caveman.attackCooldown = 30;
+            ally.attackCooldown = 30;
 
             // Caveman counter attack
             if (!caveman.isDead()) {
@@ -71,7 +72,7 @@ public class CombatSystem {
     }
 
     private static void cavemanCowCombat(Caveman caveman, Cow cow) {
-        if (caveman.isHungry || caveman.attackCooldown == 0) {
+        if (caveman.isHungry && caveman.attackCooldown == 0) {
             // Caveman hits the cow (cows have 0 damage, no counter attack)
             cow.takeDamage(caveman.damage);
             caveman.attackCooldown = 30;

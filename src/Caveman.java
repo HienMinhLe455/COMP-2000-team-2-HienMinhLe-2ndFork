@@ -8,7 +8,7 @@ public class Caveman extends Animal implements AnimalBehaviours{
     //private static int defaultHunger = 10; //seconds before dying?
     private static int defaultDamage = 2;
     private static int defaultMaxHunger = 800;
-    private static int defaultFoodValue = 150;
+    private static int defaultFoodValue = 300;
     public static final int ALERT_RADIUS = 150;
 
     private static final BufferedImage sprite =

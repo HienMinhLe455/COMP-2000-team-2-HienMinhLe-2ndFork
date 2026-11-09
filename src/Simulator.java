@@ -15,22 +15,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Simulator extends JPanel {
-    // Owned by the sim thread only. Never touch these from the EDT after startup.
     private final List<Animal> animals = new ArrayList<>();
     private final List<Zone> environment = new ArrayList<>();
     private final List<Grass> grassList = new ArrayList<>();
     private int grassSpawnTimer = 0;
-
-    // Written only in the constructor, so safe to read from the EDT.
    
-
     private final Random rand = new Random();
     private final int targetPlantCount = 12;
 
     private final BufferedImage background =
         SpriteLoader.load("src/assets/background.png");
 
-    // Background scaled to the panel size. EDT only (built in paintComponent).
     private BufferedImage scaledBg;
 
     // Sim thread: runs the update loop (movement, collisions, combat)
@@ -41,24 +36,21 @@ public class Simulator extends JPanel {
             return t;
         });
 
-    // UI -> sim thread: actions to run at the start of the next tick
     private final Queue<Runnable> commands = new ConcurrentLinkedQueue<>();
 
-    // Sim thread -> EDT: copies the painter reads. Replaced every tick.
     private volatile List<Animal> animalsView = List.of();
     private volatile List<Zone> environmentView = List.of();
     private volatile List<Grass> grassView = List.of();
 
-    // Panel size, cached so the sim thread never calls Swing getters
     private volatile int simWidth;
     private volatile int simHeight;
 
     public Simulator() {
-        // (these are queued and run on the first tick, in this order)
         createDinosaur(150, 200);
         createDinosaur(150, 500);
         createDinosaur(400, 400);
         createDinosaur(400, 50);
+        createDinosaur(300, 50);
         createCaveman(210, 200);
         createCaveman(220, 200);
         createCaveman(500, 500);
@@ -70,8 +62,6 @@ public class Simulator extends JPanel {
         createCow(450, 400);
         createCow(300, 300);
 
-        // Creates environment with their related status effect
-        // (queued too, because environment belongs to the sim thread)
         commands.add(() -> {
             environment.add(ZoneEffects.heal(ZoneEffects.shelter(new Cave(600, 525), a -> a instanceof Caveman), a -> a instanceof Caveman));
             environment.add(ZoneEffects.heal(ZoneEffects.shelter(new Cave(1500, 375), a -> a instanceof Caveman), a -> a instanceof Caveman));
@@ -95,11 +85,9 @@ public class Simulator extends JPanel {
             }
         });
 
-        // Runs on the sim thread, so the EDT is free for painting
         simExecutor.scheduleAtFixedRate(this::tick, 0, 16, TimeUnit.MILLISECONDS);
     }
 
-    // One simulation step: runs on the sim thread
     private void tick() {
         try {
             Runnable c;
@@ -179,7 +167,6 @@ public class Simulator extends JPanel {
         grassList.removeIf(g -> g.isEaten);
     }
 
-    // EDT only paints. It reads the published views, never the live lists.
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -221,7 +208,6 @@ public class Simulator extends JPanel {
         EcosystemDashboard.draw(g2, animalsNow);
     }
 
-    // All create methods go through the queue so the EDT never mutates sim state
     public void createVolcano(int spawnX, int spawnY, int radius, int lavaRad) {
         commands.add(() -> environment.add(new Volcano(spawnX, spawnY, radius, lavaRad)));
     }
@@ -252,7 +238,6 @@ public class Simulator extends JPanel {
        grassList.add(new Grass(x, y));
     }
 
-    // Stop the sim thread when the panel is removed from the window
     @Override
     public void removeNotify() {
         simExecutor.shutdownNow();

@@ -18,19 +18,17 @@ public class Volcano extends Zone {
     boolean errupting = false;
     int tickCount = 0;
 
-    static final int DORMANT_TICKS = 3600;
-    static final int MAX_LAVA = 600;
+    static final int DORMANT_TICKS = 3750;
+    static final int MAX_LAVA = 180;
     static final int GROW_RATE = 3;
     static final int SHRINK_RATE = 1;
 
     // tick rate for timing on when the volcano errupts
-
     Volcano(int spawnX, int spawnY, int radius, int lavaRadius) {
         x = spawnX;
         y = spawnY;
         r = radius;
         this.lavaRadius = lavaRadius;
-
     }
 
     @Override
@@ -103,7 +101,7 @@ public class Volcano extends Zone {
         }
 
         // lava
-        drawing.setColor(new Color(100, 10, 10));
+        drawing.setColor(new Color(255, 80, 0, 200));
         int lavaX = x - lavaRadius;
         int lavaY = (y - r) - lavaRadius;
         ;

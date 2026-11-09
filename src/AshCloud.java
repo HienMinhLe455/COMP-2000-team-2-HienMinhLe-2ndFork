@@ -3,7 +3,7 @@ import java.awt.geom.Ellipse2D;
 
 public class AshCloud extends Zone {
     private final Volcano volcano;
-    private static final int MARGIN = 300; // how far the ash reaches past the lava edge
+    private static final int MARGIN = 120; // how far the ash reaches past the lava edge
 
     AshCloud(Volcano volcano) {
         this.volcano = volcano;
